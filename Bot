@@ -1,9 +1,9 @@
 from pyrogram import Client, filters, types, enums
 import logging, random, asyncio, requests
 
-TOKEN = "8153701407:AAEGP4pp0Rg85lxZJtGxSVOwIAp9FORIIN4"
-API_ID = 28833157
-API_HASH = "36fd7803fd4b53ee2f421f547e010cdb"
+TOKEN = "token"
+API_ID = 1234
+API_HASH = "1234abcd"
 
 class Logger:
     def __init__(
