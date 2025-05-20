@@ -1,7 +1,7 @@
 import os
 import threading
 from pyrogram import Client, filters, types, enums
-import logging, random, asyncio, requests
+import logging, random, asyncio
 
 from background import start_server  # Импорт Flask-сервера
 
