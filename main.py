@@ -1,112 +1,68 @@
+import os
+import threading
 from pyrogram import Client, filters, types, enums
 import logging, random, asyncio, requests
 
-TOKEN = "token"
-API_ID = 1234
-API_HASH = "1234abcd"
+from background import start_server  # Импорт Flask-сервера
+
+# Получаем переменные окружения
+TOKEN = os.environ.get("BOT_TOKEN")
+API_ID = int(os.environ.get("API_ID", 0))
+API_HASH = os.environ.get("API_HASH")
 
 class Logger:
-    def __init__(
-            self,
-            filename: str | None = None,
-            logging_format: str | None = "[%(asctime)s] [%(levelname)s]: %(message)s"
-    ) -> None:
+    def __init__(self, filename=None, logging_format="[%(asctime)s] [%(levelname)s]: %(message)s") -> None:
         self.filename = filename
         self.level = logging.INFO
         self.format = logging_format
 
-        if filename is not None:
-            logging.basicConfig(
-                level=self.level,
-                format=self.format,
-                filename=filename,
-                filemode="a+"
-            )
+        if filename:
+            logging.basicConfig(level=self.level, format=self.format, filename=filename, filemode="a+")
         else:
-            logging.basicConfig(
-                level=self.level,
-                format=self.format
-            )
+            logging.basicConfig(level=self.level, format=self.format)
 
         self.logger = logging.getLogger(__name__)
 
-    def error(self, message):
-        self.logger.error(message)
-
-    def warning(self, message):
-        self.logger.warning(message)
-
-    def info(self, message):
-        self.logger.info(message)
-
-    def critical(self, message):
-        self.logger.critical(message)
-
+    def error(self, message): self.logger.error(message)
+    def warning(self, message): self.logger.warning(message)
+    def info(self, message): self.logger.info(message)
+    def critical(self, message): self.logger.critical(message)
 
 class App:
-    def __init__(
-            self,
-            api_id: int | None,
-            api_hash: str | None,
-            token: str | None
-    ) -> None:
-        self.api_id = api_id
-        self.api_hash = api_hash
-        self.token = token
-
+    def __init__(self, api_id, api_hash, token):
         self.client = Client(
-            'zazyvala',
-            api_id=self.api_id,
-            api_hash=self.api_hash,
-            bot_token=self.token,
+            "zazyvala",
+            api_id=api_id,
+            api_hash=api_hash,
+            bot_token=token,
             parse_mode=enums.ParseMode.HTML
         )
-
-    async def start(self):
-        await self.client.start()
 
     def run(self):
         self.client.run()
 
-
 logger = Logger()
-
-app = App(
-    api_id=API_ID,
-    api_hash=API_HASH,
-    token=TOKEN
-)
+app = App(API_ID, API_HASH, TOKEN)
 client = app.client
-
 
 def full_name(msg: types.Message) -> str:
     return f"{msg.from_user.first_name}{' ' + msg.from_user.last_name if msg.from_user.last_name else ''}"
 
 async def empty_char() -> str:
-    """
-    Returns the zero-width space character.
-    """
     return "⁠"
 
-@client.on_message(filters.command(["start"], prefixes=[".", "/", "!"]))
+@client.on_message(filters.command(["start"], prefixes=["/", ".", "!"]))
 async def start_cmd(_, msg: types.Message):
     try:
-        await msg.reply(
-            f"<b>Привет, {full_name(msg)}!</b> Используй команду /all или @all в чате, чтобы созвать всех пользователей."
-        )
-
+        await msg.reply(f"<b>Привет, {full_name(msg)}!</b> Используй команду /all или @all в чате.")
     except Exception as e:
         logger.error(e)
-
 
 @client.on_message(filters.command(["all", "@all", ".все", ".всем", ".призыв", "калл", ".all"], prefixes=[".", "/", "!", "@", ""]) & filters.group)
 async def tag_cmd(_, msg: types.Message):
     try:
-        members = []
-        async for member in client.get_chat_members(msg.chat.id):
-            members.append(member)
-
-        users = [member for member in members if member.user and not member.user.is_bot and not member.user.is_deleted]
+        members = [member async for member in client.get_chat_members(msg.chat.id)]
+        users = [m for m in members if m.user and not m.user.is_bot and not m.user.is_deleted]
 
         command_parts = msg.text.split(maxsplit=1)
         args = command_parts[1] if len(command_parts) > 1 else ""
@@ -119,13 +75,12 @@ async def tag_cmd(_, msg: types.Message):
         mentioned_users += "\nСпасибо за внимание."
 
         await client.send_message(chat_id=msg.chat.id, text=mentioned_users)
-
     except Exception as e:
         logger.error(e)
 
-
-
 if __name__ == "__main__":
+    # Запускаем Flask-сервер в фоне
+    threading.Thread(target=start_server, daemon=True).start()
+
     logger.info("START BOT")
     app.run()
-
