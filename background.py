@@ -8,4 +8,4 @@ def ping():
     return "I'm alive", 200
 
 def start_server():
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8000)
