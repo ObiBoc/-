@@ -8,9 +8,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from background import start_server
 
-TOKEN = os.getenv("BOT_TOKEN", "8153701407:AAFqW7hv-eeF4dgkHb2Usjr3i0atiOhXnIM")
-API_ID = int(os.getenv("API_ID", "28833157"))
-API_HASH = os.getenv("API_HASH", "36fd7803fd4b53ee2f421f547e010cdb")
+TOKEN = os.getenv("BOT_TOKEN")
+API_ID = int(os.getenv("API_ID"))
+API_HASH = os.getenv("API_HASH")
 
 class Logger:
     def __init__(self, filename=None, logging_format="[%(asctime)s] [%(levelname)s]: %(message)s") -> None:
@@ -63,7 +63,7 @@ async def help_cmd(_, msg: types.Message):
             "<b>Команды:</b>\n\n"
             "<b>/all</b> или <b>@all</b> или <b>/all</b> [сообщение] — Упоминает всех участников группы\n"
             "Можно добавить сообщение, оно будет отображено после упоминаний\n\n"
-            "</b>/help</b> - Выводит это сообщение\n\n"
+            "<b>/help</b> - Выводит это сообщение\n\n"
             "По всем вопросам писать сюда <b>@kchemniy</b>"
         )
         await msg.reply(text)
