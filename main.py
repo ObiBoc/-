@@ -61,10 +61,10 @@ async def help_cmd(_, msg: types.Message):
     try:
         text = (
             "<b>Команды:</b>\n\n"
-            "/all или @all или /all [сообщение] — упоминает всех участников группы\n"
+            "<b>/all</b> или <b>@all</b> или <b>/all</b> [сообщение] — Упоминает всех участников группы\n"
             "Можно добавить сообщение, оно будет отображено после упоминаний\n\n"
-            "/help - выводит это сообщение\n\n"
-            "По всем вопросам писать сюда @kchemniy"
+            "</b>/help</b> - Выводит это сообщение\n\n"
+            "По всем вопросам писать сюда <b>@kchemniy</b>"
         )
         await msg.reply(text)
     except Exception as e:
@@ -104,7 +104,7 @@ async def welcome_bot(client, update: types.ChatMemberUpdated):
         if new.user.is_self and new.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR]:
             await client.send_message(
                 chat_id=update.chat.id,
-                text="Всем привет!\nИспользуйте /all для упоминания всех участников чата"
+                text="Всем привет!\n\nИспользуйте /all для упоминания всех участников чата"
             )
     except Exception as e:
         logger.error(e)
